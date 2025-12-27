@@ -1,0 +1,78 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Dataset files (CIFAR-10)
+*.tar.gz
+*.npz
+*.npy
+data/
+datasets/
+cifar-10-batches-py/
+cifar-10-python.tar.gz
+
+# Model checkpoints and outputs
+*.h5
+*.hdf5
+*.pkl
+*.pth
+*.ckpt
+models/
+checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# pytest
+.pytest_cache/
+.coverage
+
+# TensorFlow/Keras
+*.pb
+saved_model/
+
+# Large output files
+*.png
+*.jpg
+*.jpeg
+!documentation/*.png
+!documentation/*.jpg
