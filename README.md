@@ -1,31 +1,89 @@
-# CENG463_HW_IMG_CLUSTERING
+# CIFAR-10 Image Clustering with Unsupervised Learning
 
-# CENG 463 – HW3: CIFAR-10 Image Clustering
+An **unsupervised learning** study on the CIFAR-10 image dataset. Raw pixels are standardized and compressed with **PCA**, grouped with **K-Means**, **Agglomerative Clustering** and **DBSCAN**, and the results are visualized in 2D with **t-SNE**.
 
-As an **image clustering task**, you will work with the CIFAR-10 dataset, which contains images from 10 classes, including airplanes, cars, cats, and dogs. The goal is to use **unsupervised learning** techniques to group similar images automatically and visualize the results.
+Built as **HW3** for the **CENG 463 – Introduction to Machine Learning** course. The full assignment description is in [`documentation/CENG463_HW3.pdf`](documentation/CENG463_HW3.pdf).
 
-## 1. Dataset Overview 
-- Load the dataset using Keras (More information: [Keras CIFAR-10.](https://keras.io/api/datasets/cifar10/)):
+## Pipeline
 
-    from keras.datasets import cifar10
+```
+CIFAR-10 (50,000 × 32×32×3)
+   │  flatten
+   ▼
+3072-dim pixel vectors ──► StandardScaler ──► PCA (50 components)
+                                                   │  random sample of 10,000 images (seed 42)
+                                                   ▼
+                         K-Means (k=10) · Agglomerative (k=10) · DBSCAN (eps=15, min_samples=5)
+                                                   │
+                                                   ▼
+                                     t-SNE (50D → 2D) scatter plots
+```
 
-   (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+## 1. Dataset Overview
 
-- Show the dataset size and class names in a table.
-- Display sample images from each class.
+- Loaded with `keras.datasets.cifar10`: 50,000 training and 10,000 test images, 32×32 RGB, 10 classes.
+- Classes: Airplane, Automobile, Bird, Cat, Deer, Dog, Frog, Horse, Ship, Truck.
 
-## 2. Feature Extraction and PCA 
-- Convert each image from 32×32×3 into a 3072-dimensional vector.
-- Scale the vectors using StandardScaler.
-- Apply PCA to reduce the dimensionality from 3072 → 50.
+![Sample images from each CIFAR-10 class](documentation/sample_images.png)
 
-## 3. Clustering Methods 
-- Perform clustering on the PCA-transformed features using three Sklearn algorithms: K-Means, Agglomerative Clustering, DBSCAN.
-- Visualize example images for each cluster.
-- Provide short comments on the clusters.
+## 2. Feature Extraction & PCA
 
-## 4. Visualization and Analysis (30 pts)
-- Use t-SNE to reduce PCA features to 2D for visualization.
-- Create colored scatter plots for each clustering algorithm.
-- Observe which classes are better grouped by each algorithm.
- 
+- Each image is flattened into a **3072-dimensional** vector.
+- Features are standardized with `StandardScaler`.
+- **PCA** reduces the dimensionality from 3072 to **50**.
+
+## 3. Clustering
+
+The three algorithms run on a random sample of 10,000 PCA-reduced images:
+
+| Algorithm | Configuration | Clusters found |
+| --- | --- | --- |
+| K-Means | `n_clusters=10`, `random_state=42` | 10 |
+| Agglomerative Clustering | `n_clusters=10` (Ward linkage) | 10 |
+| DBSCAN | `eps=15`, `min_samples=5` | 3 + noise |
+
+The notebook shows example images from each cluster for every algorithm.
+
+## 4. Visualization & Analysis
+
+t-SNE projects the 50-D PCA features to 2D. Each point is colored by its ground-truth class and by the label from each algorithm:
+
+![t-SNE visualization of clustering results](documentation/tsne_clusters.jpg)
+
+**Observations**
+
+- The ground-truth classes are **heavily mixed** in raw-pixel PCA space. Standardized pixels mostly encode color, brightness and background rather than object identity, so no class forms a clean island.
+- **K-Means** and **Agglomerative Clustering** split the space into contiguous regions, but those regions do not line up with the true classes.
+- **DBSCAN** labels almost every point as noise (`-1`) at `eps=15`. In this high-dimensional space with no clear density structure, a single global density threshold does not work well.
+- Clusters that match the semantic classes would need learned features, such as embeddings from a pretrained CNN, instead of raw pixels.
+
+## Getting Started
+
+The notebook was developed with Python 3.13.
+
+```bash
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+jupyter notebook CENG463_HW3_GROUPID.ipynb
+```
+
+> `requirements.txt` installs `tensorflow[and-cuda]`. On a machine without an NVIDIA GPU, install plain `tensorflow` instead. Keras only uses it to download and load CIFAR-10.
+
+CIFAR-10 (~170 MB) downloads automatically on first run.
+
+## Project Structure
+
+```
+.
+├── CENG463_HW3_GROUPID.ipynb   # Full notebook with outputs
+├── requirements.txt
+└── documentation/
+    ├── CENG463_HW3.pdf         # Assignment specification
+    ├── sample_images.png       # Figures used in this README
+    └── tsne_clusters.jpg
+```
+
+## Tech Stack
+
+Python · Keras/TensorFlow (data loading) · scikit-learn · NumPy · pandas · Matplotlib · Jupyter
